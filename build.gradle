@@ -1,0 +1,35 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+
+sourceCompatibility = 1.5
+targetCompatibility = 1.5
+version = '1.0'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+}
+
+
+idea {
+    project {
+        jdkName = "1.6"
+        languageLevel = "1.6"
+        ipr {
+            withXml {
+                it.asNode().component.find { it.@name == "VcsDirectoryMappings" }.@vcs = "Git"
+            }
+        }
+    }
+    module {
+        downloadSources = false
+        downloadJavadoc = false
+        inhertOutputDirs = false
+        outputDir = file("$project.buildDir/classes/main")
+        testOutputDir = file("$project.buildDir/classes/test")
+    }
+}
