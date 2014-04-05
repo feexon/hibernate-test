@@ -1,0 +1,7 @@
+DROP TABLE IF EXISTS address;
+CREATE TABLE address (
+  id       INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  country  VARCHAR,
+  province VARCHAR,
+  `order`  INTEGER
+);

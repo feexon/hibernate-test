@@ -1,8 +1,10 @@
+import domain.Address;
 import org.apache.commons.io.IOUtils;
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.classic.Session;
 import org.hibernate.dialect.HSQLDialect;
+import org.hibernate.dialect.SQLiteDialect;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -13,6 +15,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.StringTokenizer;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+
 /**
  * @author Administrator
  * @version 1.0 14-3-28,上午10:29
@@ -20,7 +25,7 @@ import java.util.StringTokenizer;
 public class HibernateTest {
     private Session session;
     @Rule
-    public TemporaryFolder folder=new TemporaryFolder();
+    public TemporaryFolder folder = new TemporaryFolder();
 
     @Before
     public void openNewSession() throws IOException {
@@ -45,10 +50,10 @@ public class HibernateTest {
     private AnnotationConfiguration buildConfiguration() throws IOException {
 
         return new AnnotationConfiguration() {{
-            setProperty(Environment.DIALECT, HSQLDialect.class.getName());
+            setProperty(Environment.DIALECT, SQLiteDialect.class.getName());
             setProperty(Environment.DRIVER, JDBC.class.getName());
             setProperty(Environment.URL, "jdbc:sqlite:" + folder.newFile().getAbsolutePath());
-
+            addAnnotatedClass(Address.class);
         }};
     }
 
@@ -64,5 +69,13 @@ public class HibernateTest {
         session.beginTransaction().rollback();
     }
 
+    @Test
+    public void insert() throws Exception {
+        session.beginTransaction();
+        Address address = new Address("guangzhou", "china");
+        session.save(address);
+        session.evict(address);
+        assertThat(((Address) session.get(Address.class, address.id)).order, equalTo(1));
+    }
 }
 
