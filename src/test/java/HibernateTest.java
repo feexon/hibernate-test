@@ -1,7 +1,10 @@
+import domain.Order;
+import domain.User;
 import org.apache.commons.io.IOUtils;
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.classic.Session;
+import org.hibernate.criterion.Restrictions;
 import org.hibernate.dialect.HSQLDialect;
 import org.junit.Before;
 import org.junit.Rule;
@@ -13,6 +16,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.StringTokenizer;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author Administrator
  * @version 1.0 14-3-28,上午10:29
@@ -20,7 +25,7 @@ import java.util.StringTokenizer;
 public class HibernateTest {
     private Session session;
     @Rule
-    public TemporaryFolder folder=new TemporaryFolder();
+    public TemporaryFolder folder = new TemporaryFolder();
 
     @Before
     public void openNewSession() throws IOException {
@@ -48,7 +53,8 @@ public class HibernateTest {
             setProperty(Environment.DIALECT, HSQLDialect.class.getName());
             setProperty(Environment.DRIVER, JDBC.class.getName());
             setProperty(Environment.URL, "jdbc:sqlite:" + folder.newFile().getAbsolutePath());
-
+            addAnnotatedClass(User.class);
+            addAnnotatedClass(Order.class);
         }};
     }
 
@@ -64,5 +70,12 @@ public class HibernateTest {
         session.beginTransaction().rollback();
     }
 
+    @Test
+    public void load() throws Exception {
+        Order order = (Order) session.createCriteria(Order.class).add(Restrictions.idEq(1)).uniqueResult();
+        assertEquals("金饰", order.name);
+        assertEquals("张三", order.payer.name);
+        assertEquals("F-002", order.payer.card);
+    }
 }
 
