@@ -1,3 +1,5 @@
+import domain.Address;
+import domain.User;
 import org.apache.commons.io.IOUtils;
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.cfg.Environment;
@@ -13,6 +15,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.StringTokenizer;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+
 /**
  * @author Administrator
  * @version 1.0 14-3-28,上午10:29
@@ -20,7 +25,7 @@ import java.util.StringTokenizer;
 public class HibernateTest {
     private Session session;
     @Rule
-    public TemporaryFolder folder=new TemporaryFolder();
+    public TemporaryFolder folder = new TemporaryFolder();
 
     @Before
     public void openNewSession() throws IOException {
@@ -48,7 +53,8 @@ public class HibernateTest {
             setProperty(Environment.DIALECT, HSQLDialect.class.getName());
             setProperty(Environment.DRIVER, JDBC.class.getName());
             setProperty(Environment.URL, "jdbc:sqlite:" + folder.newFile().getAbsolutePath());
-
+            addAnnotatedClass(User.class);
+            addAnnotatedClass(Address.class);
         }};
     }
 
@@ -64,5 +70,12 @@ public class HibernateTest {
         session.beginTransaction().rollback();
     }
 
+    @Test
+    public void load() throws Exception {
+        User user = (User) session.get(User.class, 1);
+        assertThat(user.name, equalTo("Joe"));
+        assertThat(user.address.country, equalTo("china"));
+
+    }
 }
 
