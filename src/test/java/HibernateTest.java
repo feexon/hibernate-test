@@ -3,7 +3,6 @@ import org.apache.commons.io.IOUtils;
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.classic.Session;
-import org.hibernate.dialect.HSQLDialect;
 import org.hibernate.dialect.SQLiteDialect;
 import org.junit.Before;
 import org.junit.Rule;
@@ -53,6 +52,7 @@ public class HibernateTest {
             setProperty(Environment.DIALECT, SQLiteDialect.class.getName());
             setProperty(Environment.DRIVER, JDBC.class.getName());
             setProperty(Environment.URL, "jdbc:sqlite:" + folder.newFile().getAbsolutePath());
+            setProperty("org.hibernate.persister.entity level", "jdbc:sqlite:" + folder.newFile().getAbsolutePath());
             addAnnotatedClass(Address.class);
         }};
     }
@@ -72,10 +72,13 @@ public class HibernateTest {
     @Test
     public void insert() throws Exception {
         session.beginTransaction();
-        Address address = new Address("guangzhou", "china");
+        Address address = new Address("china", "guangzhou");
         session.save(address);
         session.evict(address);
-        assertThat(((Address) session.get(Address.class, address.id)).order, equalTo(1));
+        Address saved = (Address) session.get(Address.class, address.id);
+        assertThat(saved.order, equalTo(1));
+        assertThat(saved.country, equalTo(address.country));
+        assertThat(saved.province, equalTo(address.province));
     }
 }
 

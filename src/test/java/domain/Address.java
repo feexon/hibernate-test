@@ -11,7 +11,8 @@ import javax.persistence.*;
  */
 @Entity
 @Access(AccessType.FIELD)
-@SQLInsert(sql = "insert into address (province,country,\"order\") values(:province,:country,1)")
+@Table(name = "address")
+@SQLInsert(sql = "insert into address (country, province,\"order\") values(?,?,1)")
 public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -24,7 +25,7 @@ public class Address {
     public Address() {
     }
 
-    public Address(String province, String country) {
+    public Address(String country, String province) {
         this.province = province;
         this.country = country;
     }
