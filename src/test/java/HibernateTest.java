@@ -20,7 +20,7 @@ import java.util.StringTokenizer;
 public class HibernateTest {
     private Session session;
     @Rule
-    public TemporaryFolder folder=new TemporaryFolder();
+    public TemporaryFolder folder = new TemporaryFolder();
 
     @Before
     public void openNewSession() throws IOException {
@@ -30,10 +30,9 @@ public class HibernateTest {
     }
 
     private void executeSQL(URL sqlFile, Session session) throws IOException {
-        StringTokenizer commands = new StringTokenizer(IOUtils.toString(sqlFile), ";");
+        String[] commands = IOUtils.toString(sqlFile).split("--\\$");
         session.beginTransaction();
-        while (commands.hasMoreElements()) {
-            String command = (String) commands.nextElement();
+        for (String command : commands) {
             if (command.trim().equals("")) {
                 continue;
             }
